@@ -1,3 +1,11 @@
+MinIO 서비스 정보 확인 (K8s)
+# [1] 모든 네임스페이스에서 MinIO 서비스 이름과 네임스페이스 확인
+kubectl get svc -A | grep -i minio
+
+# [2] 위에서 찾은 서비스의 포트 상세 정보 확인 (9000번 포트 확인용)
+# 예: kubectl describe svc <서비스명> -n <네임스페이스>
+kubectl describe svc $(kubectl get svc -A | grep -i minio | awk '{print $2}') -n $(kubectl get svc -A | grep -i minio | awk '{print $1}')
+
 # 1. Docker Hub에서 이미지 다운로드
 docker pull nginxinc/nginx-s3-gateway:latest
 docker pull nginxinc/nginx-s3-gateway:2.0.0
