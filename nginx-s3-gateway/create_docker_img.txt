@@ -1,0 +1,36 @@
+# 1. Docker Hub에서 이미지 다운로드
+docker pull nginxinc/nginx-s3-gateway:latest
+docker pull nginxinc/nginx-s3-gateway:2.0.0
+
+# 2. 사내 레포지토리 주소에 맞게 태그 생성
+# 예: 사내 레포 주소가 registry.company.com 이라면
+docker tag nginxinc/nginx-s3-gateway:latest registry.company.com/library/nginx-s3-gateway:latest
+
+# 3. 사내 레포지토리 로그인
+docker login registry.company.com
+
+# 4. 이미지 업로드
+docker push registry.company.com/library/nginx-s3-gateway:latest
+
+#test.yaml 테스트 
+# 1. pod 접속 >  MinIO 서버 자체 응답 확인 (네트워크 연결 확인)
+curl -I $S3_SERVER/minio/health/live
+
+# 2. 특정 이미지 파일 요청 (Nginx를 통하지 않고 직접 MinIO로 요청)
+# 주의: 이 경우 Private 버킷이면 403이 뜨는 것이 정상입니다. (인증 헤더가 없으므로)
+curl -I http://$S3_SERVER/$S3_BUCKET/your-image.png
+
+# Nginx 포트(기본 8080)로 요청
+curl -I http://localhost:8080/your-image.png
+200 OK: 성공적으로 서명이 추가되어 MinIO에서 데이터를 가져온 것입니다.
+403 Forbidden: Nginx가 생성한 서명이 MinIO의 Key와 일치하지 않거나, 시각 차이가 큰 경우입니다.
+404 Not Found: 버킷 이름이나 파일 경로가 잘못된 경우입니다
+
+
+my-minio-proxy/
+├── Chart.yaml
+├── values.yaml
+└── templates/
+    ├── deployment.yaml
+    ├── service.yaml
+    └── ingress.yaml

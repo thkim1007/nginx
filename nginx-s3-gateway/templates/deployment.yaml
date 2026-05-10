@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "minio-proxy.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "minio-proxy.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "minio-proxy.name" . }}
+    spec:
+      containers:
+        - name: nginx-s3-gateway
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: S3_SERVER
+              value: {{ .Values.s3.server | quote }}
+            - name: S3_REGION
+              value: {{ .Values.s3.region | quote }}
+            - name: S3_BUCKET
+              value: {{ .Values.s3.bucket | quote }}
+            - name: S3_ACCESS_KEY
+              value: {{ .Values.s3.accessKey | quote }}
+            - name: S3_SECRET_KEY
+              value: {{ .Values.s3.secretKey | quote }}
+            - name: S3_STYLE
+              value: {{ .Values.s3.style | quote }}
+            - name: S3_DEBUG
+              value: {{ .Values.s3.debug | quote }}

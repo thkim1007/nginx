@@ -1,0 +1,35 @@
+replicaCount: 1
+
+image:
+  # 사내 레포지토리 주소로 변경하세요
+  repository: registry.company.com/library/nginx-s3-gateway
+  pullPolicy: IfNotPresent
+  tag: "2.0.0"
+
+# MinIO 설정
+s3:
+  server: "minio-service.default.svc.cluster.local:9000"
+  region: "us-east-1"
+  bucket: "your-image-bucket"
+  accessKey: "minio-access-key"
+  secretKey: "minio-secret-key"
+  style: "path"
+  debug: "false"
+
+# Service 설정
+service:
+  type: ClusterIP
+  port: 80
+
+# Ingress 설정
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # 필요한 경우 SSL 설정 추가
+  hosts:
+    - host: image-proxy.company.com  # 서비스할 URL
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
