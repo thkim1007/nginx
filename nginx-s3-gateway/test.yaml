@@ -1,39 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-minio-proxy
+  name: nginx-minio-test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nginx-minio-proxy
+      app: nginx-minio-test
   template:
     metadata:
       labels:
-        app: nginx-minio-proxy
+        app: nginx-minio-test
     spec:
       containers:
       - name: nginx-s3-gateway
+        # 사내 레포에 올리신 이미지가 있다면 그 주소를 사용하세요
         image: nginxinc/nginx-s3-gateway:latest
         ports:
         - containerPort: 8080
         env:
-        # 1. MinIO 연결 정보
         - name: S3_SERVER
           value: "minio-service.default.svc.cluster.local:9000"
         - name: S3_REGION
-          value: "us-east-1" # MinIO 기본값
+          value: "us-east-1"
+        # 요청하신 경로 매핑 적용
         - name: S3_BUCKET
-          value: "your-image-bucket"
-        
-        # 2. Private 접근을 위한 자격 증명 (MinIO Access/Secret Key)
+          value: "ic_pluto/unstructured"
         - name: S3_ACCESS_KEY
-          value: "minioadmin"
+          value: "본인의_ACCESS_KEY"
         - name: S3_SECRET_KEY
-          value: "minioadmin"
-        
-        # 3. 추가 옵션
+          value: "본인의_SECRET_KEY"
         - name: S3_STYLE
-          value: "path" # Minio는 주로 path style(버킷명이 경로에 포함)을 사용
-        - name: ALLOW_DIRECTORY_LIST
-          value: "false" # 보안을 위해 디렉토리 목록 비활성화
+          value: "path"
+        # 인증 실패 시 원인을 파악하기 위해 true 설정
+        - name: S3_DEBUG
+          value: "true"

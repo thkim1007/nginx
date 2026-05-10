@@ -6,6 +6,15 @@ kubectl get svc -A | grep -i minio
 # 예: kubectl describe svc <서비스명> -n <네임스페이스>
 kubectl describe svc $(kubectl get svc -A | grep -i minio | awk '{print $2}') -n $(kubectl get svc -A | grep -i minio | awk '{print $1}')
 
+#test.yaml 배포 
+kubectl apply -f test.yaml -n app_pluto
+
+#nginx pod 접속 
+curl -I http://localhost:8080/map_images/test.png
+HTTP/1.1 200 OK: 성공입니다. Nginx가 서명을 잘 만들었고 MinIO가 이를 승인했습니다.
+HTTP/1.1 403 Forbidden: 인증 실패입니다. 로그를 확인하여 SignatureDoesNotMatch 에러가 있는지 보세요. (Key가 틀렸거나 S3_STYLE 설정 문제일 확률이 높습니다.)
+HTTP/1.1 404 Not Found: 경로 문제입니다. MinIO 버킷 내에 실제로 해당 경로와 파일이 있는지 확인하세요.
+
 # 1. Docker Hub에서 이미지 다운로드
 docker pull nginxinc/nginx-s3-gateway:latest
 docker pull nginxinc/nginx-s3-gateway:2.0.0
