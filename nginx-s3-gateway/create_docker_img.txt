@@ -16,6 +16,12 @@ docker push registry.company.com/library/nginx-s3-gateway:latest
 # 1. pod 접속 >  MinIO 서버 자체 응답 확인 (네트워크 연결 확인)
 curl -I $S3_SERVER/minio/health/live
 
+HTTP/1.1 200 OK                <-- 인증 없이 200 응답 확인
+Accept-Ranges: bytes
+Content-Length: 0
+Server: MinIO/RELEASE.2024-... <-- 여기서 버전 확인 가능
+만약 이 경로마저 403 Forbidden이 뜬다면 그것은 인증 문제가 아니라 네트워크 보안 정책(Network Policy) 문제일 확률이 높습니다.
+
 # 2. 특정 이미지 파일 요청 (Nginx를 통하지 않고 직접 MinIO로 요청)
 # 주의: 이 경우 Private 버킷이면 403이 뜨는 것이 정상입니다. (인증 헤더가 없으므로)
 curl -I http://$S3_SERVER/$S3_BUCKET/your-image.png
