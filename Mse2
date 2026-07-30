@@ -1,0 +1,25 @@
+기존 ⁠Math.round(value)⁠ 대신 아래와 같이 OpenCV C++ 사양의 비트 연산 기반 반올림으로 변경해 보세요
+
+
+
+// OpenCV C++의 cvRound / saturate_cast<uchar> 와 완전히 동일한 동작
+private static int saturateCastOpenCV(double value) {
+    // 1. OpenCV는 내부적으로 (int)(val + (val >= 0 ? 0.5 : -0.5)) 형태 또는 
+    //    C++ fast round를 사용합니다.
+    int ival;
+    if (value >= 0) {
+        ival = (int)(value + 0.5);
+    } else {
+        ival = (int)(value - 0.5);
+    }
+    
+    // 2. 0 ~ 255 Clamping
+    if (ival > 255) return 255;
+    if (ival < 0) return 0;
+    return ival;
+
+
+}
+
+
+
