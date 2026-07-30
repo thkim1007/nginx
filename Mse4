@@ -1,0 +1,16 @@
+해결책 3. 이진화 단계에 히스테리시스(Hysteresis) / 소프트 임계값 적용 (강로바스트 설계)
+단순 하드 이진화(Hard Thresholding: I \ge 160 ? 255 : 0)는 경계값 160 직전의 159.999와 160.001에 대해 결과값을 0과 255라는 극단적 차이로 만듭니다.
+업무 로직상 Java/Python 간 환경 차이를 아예 무시할 수 있도록 알고리즘 구조를 강화하려면 이진화 전/후 경계 부드럽게 만들기를 적용할 수 있습니다.
+1) 샌드위치 임계값 (Hysteresis / Band Thresholding)
+경계값 160 부근의 마진(예: \pm 1.0) 구간을 두어 불확실한 픽셀 오차가 윤곽선 면적 가중치에 결정적인 영향을 미치지 않도록 처리합니다.
+
+// 마진 구간 (159.0 ~ 161.0)에 위치한 픽셀은 선형 보간(Soft Threshold) 또는 
+// 이웃 픽셀 연결성 확인 후 이진화 처리
+public static int softThreshold(int pixelValue, int threshold, double margin) {
+    if (pixelValue >= threshold + margin) return 255;
+    if (pixelValue <= threshold - margin) return 0;
+    
+    // 159 ~ 161 사이 경계 영역은 0과 255 사이 부드러운 가중치 부여 (Soft Sigmoid/Linear)
+    double ratio = (pixelValue - (threshold - margin)) / (2.0 * margin);
+    return (int) Math.round(ratio * 255.0);
+}
